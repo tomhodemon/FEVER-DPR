@@ -30,11 +30,12 @@ class BiEncoder(nn.Module):
         passage_embeddings = self.dropout(passage_embeddings)
 
         return query_embeddings, passage_embeddings
-    
-def compute_loss(scores, labels):
-  probs = F.log_softmax(scores, dim=1)
-  return F.nll_loss(probs, labels)
 
+    @staticmethod
+    def compute_loss(scores, labels):
+        probs = F.log_softmax(scores, dim=1)
+        return F.nll_loss(probs, labels)
+    
 class FEVERDataset(torch.utils.data.Dataset):
     def __init__(self, split):
         super(FEVERDataset, self).__init__()
@@ -83,7 +84,7 @@ def evaluate(model, dataloader):
         score = torch.matmul(query_embeddings, passage_embeddings.permute(1, 0))
         labels = torch.arange(query_embeddings.size(0)).to(score.device)
 
-        loss =  compute_loss(score, labels)
+        loss =  BiEncoder.compute_loss(score, labels)
 
         total_loss+=loss.item()
 
@@ -129,7 +130,7 @@ def main(args):
             score = torch.matmul(query_embeddings, passage_embeddings.permute(1, 0))
             labels = torch.arange(query_embeddings.size(0)).to(score.device)
 
-            loss = compute_loss(score, labels)
+            loss = BiEncoder.compute_loss(score, labels)
 
             loss.backward()
             optimizer.step()
