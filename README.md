@@ -1,6 +1,6 @@
 # FEVER-DPR
 
-### Deep Learning for Natural Language Processing (AI605) coursework
+**Deep Learning for Natural Language Processing (AI605) coursework**
 
 This repository contains: 
 * Source code used to prepare and publish the FEVER data to HF Hub.
