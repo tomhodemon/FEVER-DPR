@@ -33,11 +33,11 @@ def get_instances(split, num_max_instances=None):
             "query": data["query"],
             "positive_passage":  {
                 "title": positive_passage[0],
-                "text": positive_passage[1]
+                "passage": positive_passage[1]
             },
             "hard_negative_passage":  {
                 "title": hard_negative_passage[0],
-                "text": hard_negative_passage[1]
+                "passage": hard_negative_passage[1]
             }
         }
 
@@ -55,4 +55,4 @@ dataset = DatasetDict({
     "test": Dataset.from_list(validation_instances)
 })
 
-#dataset.push_to_hub("tomhodemon/dd", private=True)
+dataset.push_to_hub("tomhodemon/fever_data", private=True)

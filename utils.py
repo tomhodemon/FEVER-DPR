@@ -1,5 +1,7 @@
 import torch
-from peft import LoraConfig
+from torch.utils.tensorboard import SummaryWriter
+import os
+import json
 
 def normalize_query(query):
     query = query.replace("’", "'")
@@ -29,16 +31,6 @@ def get_schedule_linear(
 
     return torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda, last_epoch)
 
-
-def get_lora_config(lora_rank, lora_alpha, lora_dropout):
-    return LoraConfig(
-            target_modules=["query", "value"],
-            inference_mode=False, 
-            r=lora_rank, 
-            lora_alpha=lora_alpha,
-            lora_dropout=lora_dropout,
-            bias="none")
-
 @torch.no_grad()
 def index_fn(batch, tokenizer, encoder, indexer, device):
         positive_passages = batch['positive_passage']
@@ -47,7 +39,7 @@ def index_fn(batch, tokenizer, encoder, indexer, device):
         passages = positive_passages + hard_negative_passages
         passages = {
             'titles': [p['title'] for p in passages],
-            'passages': [p['text'] for p in passages]
+            'passages': [p['passage'] for p in passages]
         }
 
         passage_tensors = tokenizer(passages['titles'], passages['passages'], truncation=True, padding=True, max_length=256, return_tensors='pt')
@@ -61,3 +53,50 @@ def collate_fn(batch, tokenizer):
         queries = [normalize_query(item['query']) for item in batch]
         query_tensors = tokenizer(queries, truncation=True, padding=True, max_length=256, return_tensors='pt')
         return query_tensors
+
+"""
+def report_recall_to_tensorboard(): 
+    json_files = []
+    for root, _, files in os.walk('./results/'):
+        for file in files:
+            if file.endswith('.jsonl'):
+                json_files.append(os.path.join(root, file))
+
+    for json_file in json_files:
+        model_name = json_file.split('/')[-2]
+        writer = SummaryWriter(f'./runs/{model_name}')
+        with open(json_file, 'r') as f:
+            data = json.load(f)
+            for entry in data:
+                for keys in entry.keys():
+                    if keys.startswith('recall@'):   
+                        k = int(keys.split('@')[-1])
+                        break
+                recall_value = entry[f'recall@{k}']
+                writer.add_scalar('Metric/recall@k', recall_value, k)
+
+    writer.close()
+"""
+
+def report_recall_to_tensorboard(model_name): 
+    json_file = f'./results/{model_name}/recall@k.jsonl'
+    if not os.path.isfile(json_file):
+        print(f'{json_file} does not exist')
+        return
+    
+    writer = SummaryWriter(f'./runs/{model_name}')
+    with open(json_file, 'r') as f:
+        data = json.load(f)
+        for entry in data:
+            for keys in entry.keys():
+                if keys.startswith('recall@'):   
+                    k = int(keys.split('@')[-1])
+                    break
+            recall_value = entry[f'recall@{k}']
+            writer.add_scalar('Metric/recall@k', recall_value, k)
+
+    writer.close()
+     
+if __name__ == '__main__': 
+    report_recall_to_tensorboard("bsz16-8000-gradacc8")
+

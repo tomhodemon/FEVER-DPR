@@ -4,7 +4,6 @@ import time
 from tqdm import tqdm
 
 import torch
-from peft import PeftModel
 from transformers import AutoModel, AutoTokenizer
 from datasets import load_dataset
 import faiss
@@ -28,21 +27,12 @@ def main(args):
 
     tokenizer = AutoTokenizer.from_pretrained("bert-base-cased")
 
-    if args.lora:
-        base_model = AutoModel.from_pretrained("bert-base-cased", add_pooling_layer=False)
-        
-        queryEncoder = PeftModel.from_pretrained(base_model, args.query_encoder).to(device)
-        queryEncoder.eval()
+   
+    queryEncoder = AutoModel.from_pretrained(args.query_encoder, add_pooling_layer=False).to(device)
+    queryEncoder.eval()
 
-        passageEncoder = PeftModel.from_pretrained(base_model, args.passage_encoder).to(device)
-        passageEncoder.eval()
-
-    else:
-        queryEncoder = AutoModel.from_pretrained(args.query_encoder, add_pooling_layer=False).to(device)
-        queryEncoder.eval()
-
-        passageEncoder = AutoModel.from_pretrained(args.passage_encoder, add_pooling_layer=False).to(device)
-        passageEncoder.eval()
+    passageEncoder = AutoModel.from_pretrained(args.passage_encoder, add_pooling_layer=False).to(device)
+    passageEncoder.eval()
 
     # load dataset
     eval_dataset = load_dataset("tomhodemon/fever_data", split=args.split)

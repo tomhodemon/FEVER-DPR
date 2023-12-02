@@ -6,7 +6,6 @@ from torch.utils.tensorboard import SummaryWriter
 import transformers
 from transformers import BertModel, BertTokenizer
 from datasets import load_dataset
-from peft import get_peft_model
 from huggingface_hub import login
 
 from tqdm import tqdm
@@ -18,17 +17,11 @@ transformers.logging.set_verbosity_error()
 writer = SummaryWriter()
 
 class BiEncoder(nn.Module):
-    def __init__(self, model_name, lora_config, p_dropout=0.1):
+    def __init__(self, model_name, p_dropout=0.1):
         super(BiEncoder, self).__init__()
         self.queryEncoder = BertModel.from_pretrained(model_name, add_pooling_layer=False)
         self.passageEncoder = BertModel.from_pretrained(model_name, add_pooling_layer=False)
-        if lora_config is not None:
-            self.queryEncoder = get_peft_model(self.queryEncoder, lora_config)
-            self.queryEncoder.print_trainable_parameters()
-
-            self.passageEncoder = get_peft_model(self.queryEncoder, lora_config)
-            self.passageEncoder.print_trainable_parameters()
-            
+       
         self.dropout = nn.Dropout(p_dropout)
 
     def forward(self, query_tensors, passage_tensors):
@@ -48,7 +41,7 @@ class BiEncoder(nn.Module):
 class FEVERDataset(torch.utils.data.Dataset):
     def __init__(self, split):
         super(FEVERDataset, self).__init__()
-        self.data = load_dataset("tomhodemon/fever_data_dpr", split=split)
+        self.data = load_dataset("tomhodemon/fever_data", split=split)
         print(f"Loaded {split} dataset:")
         print(self.data)
 
@@ -104,7 +97,9 @@ def evaluate(model, dataloader, device):
 
 def main(args):
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    print(f"Using device: {device}")
 
+    args.push_to_hub = False
     if args.hf_token is not None:
         try:
             login(args.hf_token)
@@ -115,18 +110,11 @@ def main(args):
             if continue_running.lower() != 'y':
                 print("Aborting...")
                 return
-            else:
-                args.push_to_hub = False
-       
+
     # tokenize & model
     tokenizer = BertTokenizer.from_pretrained(args.base_model_name)
-
-    if args.lora:
-        lora_config = utils.get_lora_config(args.lora_rank, args.lora_alpha, args.lora_dropout)
-    else:
-        lora_config = None
     
-    bi_encoder = BiEncoder(args.base_model_name, lora_config).to(device)
+    bi_encoder = BiEncoder(args.base_model_name).to(device)
     bi_encoder.train()
 
     # dataloaders
@@ -143,17 +131,15 @@ def main(args):
     optimizer = torch.optim.Adam(bi_encoder.parameters(), lr=args.lr)
     scheduler = utils.get_schedule_linear(optimizer, args.warmup_steps, total_training_steps=args.max_steps)
 
-    global_step = 0
-
     # training loop
+    global_step = 0
     for epoch in range(args.epochs):
-        for batch in (pbar := tqdm(train_dataloader, position=0, leave=True)):
+        for step, batch in enumerate((pbar := tqdm(train_dataloader, position=0, leave=True))):
             global_step += 1
             query_tensors, passage_tensors = batch
             query_tensors = {key: val.to(device) for key, val in query_tensors.items()}
             passage_tensors = {key: val.to(device) for key, val in passage_tensors.items()}
 
-            optimizer.zero_grad()
 
             query_embeddings, passage_embeddings = bi_encoder(query_tensors, passage_tensors)
 
@@ -161,10 +147,14 @@ def main(args):
             labels = torch.arange(query_embeddings.size(0)).to(score.device)
 
             loss = BiEncoder.compute_loss(score, labels)
+            loss /= args.grad_acc_steps
 
             loss.backward()
-            optimizer.step()
-            scheduler.step()
+      
+            if (step + 1) % args.grad_acc_steps == 0:
+                optimizer.step()
+                scheduler.step()
+                optimizer.zero_grad()
 
             if global_step % args.logging_steps == 0:
                 writer.add_scalar('Loss/train', loss.item(), global_step)
@@ -178,11 +168,17 @@ def main(args):
                 break
 
     if args.push_to_hub:
-        query_encoder_name = f"fever_query_encoder_{args.batch_size}_{args.max_steps}"
+        if args.query_encoder_name is None:
+            query_encoder_name = f"fever_query_encoder_{args.batch_size}_{args.max_steps}"
+        else:
+            query_encoder_name = args.query_encoder_name
         print(f"Pushing to HF Hub as {query_encoder_name}")
         bi_encoder.queryEncoder.push_to_hub(query_encoder_name)
 
-        passage_encoder_name = f"fever_passage_encoder_{args.batch_size}_{args.max_steps}"
+        if args.passage_encoder_name is None:
+            passage_encoder_name = f"fever_passage_encoder_{args.batch_size}_{args.max_steps}"
+        else:
+            passage_encoder_name = args.passage_encoder_name
         print(f"Pushing to HF Hub as {passage_encoder_name}")
         bi_encoder.passageEncoder.push_to_hub(passage_encoder_name)
 
@@ -191,23 +187,20 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
      # training arguments
-    parser.add_argument('--baxse_model_name', type=str, default='bert-base-cased')
+    parser.add_argument('--base_model_name', type=str, default='bert-base-cased')
     parser.add_argument('--max_steps', type=int, default=6000)
     parser.add_argument('--logging_steps', type=int, default=20)
     parser.add_argument('--eval_steps', type=int, default=250)
     parser.add_argument('--epochs', type=int, default=1)
     parser.add_argument('--do_eval', action="store_true")
+    parser.add_argument('--grad_acc_steps', type=int, default=1)
     parser.add_argument('--hf_token', type=str) # if not None, models will be pushed to HF Hub
+    parser.add_argument('--query_encoder_name', type=str)
+    parser.add_argument('--passage_encoder_name', type=str)
 
     parser.add_argument('--warmup_steps', type=int, default=100)
     parser.add_argument('--batch_size', type=int, default=8)
     parser.add_argument('--lr', type=float, default=10e-5)  
-
-    # LoRA
-    parser.add_argument('--lora', action="store_true")
-    parser.add_argument('--lora_rank', type=int, default=8)
-    parser.add_argument('--lora_alpha', type=float, default=32)
-    parser.add_argument('--lora_dropout', type=float, default=0.1)
 
     args = parser.parse_args()
     
