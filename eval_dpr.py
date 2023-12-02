@@ -61,7 +61,6 @@ def main(args):
     eval_dataloader = torch.utils.data.DataLoader(eval_dataset, batch_size=batch_size, shuffle=False, collate_fn=collate_fn)
     
     st = time.time()
-    data = []
     TP = 0
     for step, batch in enumerate(tqdm(eval_dataloader)):
         with torch.no_grad():
@@ -72,17 +71,19 @@ def main(args):
         for i, idxs in enumerate(I.tolist()):
             query_idx = (step*batch_size)+i
             target_idx = (step*batch_size)+query_idx
+            """
             if not args.recall_only:
                 data.append({
                     "query_idx": (step*batch_size)+i,
                     "retrieved_idxs": idxs,
                     "target_idx": target_idx
                 })
+            """
             
             TP += 1 if target_idx in idxs else 0
 
     N = len(eval_dataset)
-    data.append({
+    entry = {
             f"recall@{args.k}": TP/N,
             "runtime:": f"{(time.time()-st):.2f}s",
             "N (num_query)": N,
@@ -90,12 +91,21 @@ def main(args):
             "device": device,
             "query_encoder_name": args.query_encoder,
             "passage_encoder_name": args.passage_encoder,
-        })
+        }
 
-    with open(f'{args.output_dir}/recall@k.jsonl', 'a') as f:
-        for entry in data:
-            json.dump(entry, f)
-            f.write('\n')
+    fname = f'{args.output_dir}/recall@k.jsonl'
+    feeds = []
+    if not os.path.isfile(fname):
+        feeds.append(entry)
+        with open(fname, mode='w') as f:
+            f.write(json.dumps(feeds, indent=2))
+    else:
+        with open(fname, 'r') as f:
+            feeds = json.load(f)
+        feeds.append(entry)
+        with open(fname, mode='w') as f:
+            f.write(json.dumps(feeds, indent=2))
+
 
 if __name__ == "__main__":
     import argparse
@@ -105,13 +115,10 @@ if __name__ == "__main__":
     parser.add_argument("--k", type=int, default=10)
     parser.add_argument("--indexes", type=str) # default is None
     parser.add_argument("--save_indexes", type=str) # only if indexes is not None
-    parser.add_argument("--recall_only", action="store_true")
     parser.add_argument("--split", type=str, default="test")
 
     parser.add_argument("--passage_encoder", type=str, required=True)
     parser.add_argument("--query_encoder", type=str, required=True)
-
-    parser.add_argument("--lora", action="store_true")
 
     args = parser.parse_args()
     main(args)
