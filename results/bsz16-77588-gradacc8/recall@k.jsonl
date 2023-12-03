@@ -1,0 +1,128 @@
+[
+  {
+    "recall@1": 0.0990508639571672,
+    "runtime:": "15.02s",
+    "N (num_query)": 4109,
+    "indexer.ntotal": 8218,
+    "device": "mps",
+    "query_encoder_name": "tomhodemon/fever_query_encoder_bsz16_ms5000_gradacc8",
+    "passage_encoder_name": "tomhodemon/fever_passage_encoder_bsz16_ms5000_gradacc8"
+  },
+  {
+    "recall@2": 0.1978583596982234,
+    "runtime:": "14.86s",
+    "N (num_query)": 4109,
+    "indexer.ntotal": 8218,
+    "device": "mps",
+    "query_encoder_name": "tomhodemon/fever_query_encoder_bsz16_ms5000_gradacc8",
+    "passage_encoder_name": "tomhodemon/fever_passage_encoder_bsz16_ms5000_gradacc8"
+  },
+  {
+    "recall@3": 0.2910683864687272,
+    "runtime:": "14.64s",
+    "N (num_query)": 4109,
+    "indexer.ntotal": 8218,
+    "device": "mps",
+    "query_encoder_name": "tomhodemon/fever_query_encoder_bsz16_ms5000_gradacc8",
+    "passage_encoder_name": "tomhodemon/fever_passage_encoder_bsz16_ms5000_gradacc8"
+  },
+  {
+    "recall@4": 0.3818447310781212,
+    "runtime:": "14.65s",
+    "N (num_query)": 4109,
+    "indexer.ntotal": 8218,
+    "device": "mps",
+    "query_encoder_name": "tomhodemon/fever_query_encoder_bsz16_ms5000_gradacc8",
+    "passage_encoder_name": "tomhodemon/fever_passage_encoder_bsz16_ms5000_gradacc8"
+  },
+  {
+    "recall@5": 0.47164760282307133,
+    "runtime:": "14.56s",
+    "N (num_query)": 4109,
+    "indexer.ntotal": 8218,
+    "device": "mps",
+    "query_encoder_name": "tomhodemon/fever_query_encoder_bsz16_ms5000_gradacc8",
+    "passage_encoder_name": "tomhodemon/fever_passage_encoder_bsz16_ms5000_gradacc8"
+  },
+  {
+    "recall@6": 0.5514723777074714,
+    "runtime:": "14.68s",
+    "N (num_query)": 4109,
+    "indexer.ntotal": 8218,
+    "device": "mps",
+    "query_encoder_name": "tomhodemon/fever_query_encoder_bsz16_ms5000_gradacc8",
+    "passage_encoder_name": "tomhodemon/fever_passage_encoder_bsz16_ms5000_gradacc8"
+  },
+  {
+    "recall@7": 0.625699683621319,
+    "runtime:": "15.49s",
+    "N (num_query)": 4109,
+    "indexer.ntotal": 8218,
+    "device": "mps",
+    "query_encoder_name": "tomhodemon/fever_query_encoder_bsz16_ms5000_gradacc8",
+    "passage_encoder_name": "tomhodemon/fever_passage_encoder_bsz16_ms5000_gradacc8"
+  },
+  {
+    "recall@8": 0.696763202725724,
+    "runtime:": "14.96s",
+    "N (num_query)": 4109,
+    "indexer.ntotal": 8218,
+    "device": "mps",
+    "query_encoder_name": "tomhodemon/fever_query_encoder_bsz16_ms5000_gradacc8",
+    "passage_encoder_name": "tomhodemon/fever_passage_encoder_bsz16_ms5000_gradacc8"
+  },
+  {
+    "recall@9": 0.7546848381601363,
+    "runtime:": "14.95s",
+    "N (num_query)": 4109,
+    "indexer.ntotal": 8218,
+    "device": "mps",
+    "query_encoder_name": "tomhodemon/fever_query_encoder_bsz16_ms5000_gradacc8",
+    "passage_encoder_name": "tomhodemon/fever_passage_encoder_bsz16_ms5000_gradacc8"
+  },
+  {
+    "recall@10": 0.8006814310051107,
+    "runtime:": "15.47s",
+    "N (num_query)": 4109,
+    "indexer.ntotal": 8218,
+    "device": "mps",
+    "query_encoder_name": "tomhodemon/fever_query_encoder_bsz16_ms5000_gradacc8",
+    "passage_encoder_name": "tomhodemon/fever_passage_encoder_bsz16_ms5000_gradacc8"
+  },
+  {
+    "recall@20": 0.9376977366755902,
+    "runtime:": "15.19s",
+    "N (num_query)": 4109,
+    "indexer.ntotal": 8218,
+    "device": "mps",
+    "query_encoder_name": "tomhodemon/fever_query_encoder_bsz16_ms5000_gradacc8",
+    "passage_encoder_name": "tomhodemon/fever_passage_encoder_bsz16_ms5000_gradacc8"
+  },
+  {
+    "recall@50": 0.9634947675833536,
+    "runtime:": "16.11s",
+    "N (num_query)": 4109,
+    "indexer.ntotal": 8218,
+    "device": "mps",
+    "query_encoder_name": "tomhodemon/fever_query_encoder_bsz16_ms5000_gradacc8",
+    "passage_encoder_name": "tomhodemon/fever_passage_encoder_bsz16_ms5000_gradacc8"
+  },
+  {
+    "recall@100": 0.9742029690922366,
+    "runtime:": "21.30s",
+    "N (num_query)": 4109,
+    "indexer.ntotal": 8218,
+    "device": "mps",
+    "query_encoder_name": "tomhodemon/fever_query_encoder_bsz16_ms5000_gradacc8",
+    "passage_encoder_name": "tomhodemon/fever_passage_encoder_bsz16_ms5000_gradacc8"
+  },
+  {
+    "recall@200": 0.9810172791433439,
+    "runtime:": "21.90s",
+    "N (num_query)": 4109,
+    "indexer.ntotal": 8218,
+    "device": "mps",
+    "query_encoder_name": "tomhodemon/fever_query_encoder_bsz16_ms5000_gradacc8",
+    "passage_encoder_name": "tomhodemon/fever_passage_encoder_bsz16_ms5000_gradacc8"
+  }
+]

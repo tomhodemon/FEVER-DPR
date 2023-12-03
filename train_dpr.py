@@ -152,7 +152,6 @@ def main(args):
             query_tensors = {key: val.to(device) for key, val in query_tensors.items()}
             passage_tensors = {key: val.to(device) for key, val in passage_tensors.items()}
 
-
             query_embeddings, passage_embeddings = bi_encoder(query_tensors, passage_tensors)
 
             score = torch.matmul(query_embeddings, passage_embeddings.permute(1, 0))
