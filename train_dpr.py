@@ -7,6 +7,7 @@ import transformers
 from transformers import BertModel, BertTokenizer
 from datasets import load_dataset
 from huggingface_hub import login
+from peft import get_peft_model
 
 from tqdm import tqdm
 import utils
@@ -17,11 +18,17 @@ transformers.logging.set_verbosity_error()
 writer = SummaryWriter()
 
 class BiEncoder(nn.Module):
-    def __init__(self, model_name, p_dropout=0.1):
+    def __init__(self, model_name, lora_config, p_dropout=0.1):
         super(BiEncoder, self).__init__()
         self.queryEncoder = BertModel.from_pretrained(model_name, add_pooling_layer=False)
         self.passageEncoder = BertModel.from_pretrained(model_name, add_pooling_layer=False)
-       
+        if lora_config is not None:
+            self.queryEncoder = get_peft_model(self.queryEncoder, lora_config)
+            self.queryEncoder.print_trainable_parameters()
+
+            self.passageEncoder = get_peft_model(self.queryEncoder, lora_config)
+            self.passageEncoder.print_trainable_parameters()
+            
         self.dropout = nn.Dropout(p_dropout)
 
     def forward(self, query_tensors, passage_tensors):
@@ -114,7 +121,12 @@ def main(args):
     # tokenize & model
     tokenizer = BertTokenizer.from_pretrained(args.base_model_name)
     
-    bi_encoder = BiEncoder(args.base_model_name).to(device)
+    if args.lora:
+        lora_config = utils.get_lora_config(args.lora_rank, args.lora_alpha, args.lora_dropout)
+    else:
+        lora_config = None
+    
+    bi_encoder = BiEncoder(args.base_model_name, lora_config).to(device)
     bi_encoder.train()
 
     # dataloaders
@@ -201,6 +213,12 @@ if __name__ == '__main__':
     parser.add_argument('--warmup_steps', type=int, default=100)
     parser.add_argument('--batch_size', type=int, default=8)
     parser.add_argument('--lr', type=float, default=10e-5)  
+
+    # LoRA
+    parser.add_argument('--lora', action="store_true")
+    parser.add_argument('--lora_rank', type=int, default=8)
+    parser.add_argument('--lora_alpha', type=float, default=8)
+    parser.add_argument('--lora_dropout', type=float, default=0.1)
 
     args = parser.parse_args()
     
