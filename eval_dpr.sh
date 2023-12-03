@@ -6,7 +6,8 @@ do
         --k $K \
         --indexes indexes.bin \
         --split test \
-        --query_encoder tomhodemon/fever_query_encoder_bsz16_8000_gradacc8 \
-        --passage_encoder tomhodemon/fever_passage_encoder_bsz16_8000_gradacc8 \
-        --output_dir results/bsz16-8000-gradacc8
+        --query_encoder tomhodemon/fever-query_encoder-lora-bsz16-77588-gradacc1 \
+        --passage_encoder tomhodemon/fever_passage_encoder-lora-bsz16-77588-gradacc1 \
+        --output_dir results/bsz16-77588-gradacc1-lora \
+        --lora
 done

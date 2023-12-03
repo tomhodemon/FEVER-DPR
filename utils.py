@@ -2,6 +2,7 @@ import torch
 from torch.utils.tensorboard import SummaryWriter
 import os
 import json
+from peft import LoraConfig
 
 def normalize_query(query):
     query = query.replace("’", "'")
@@ -53,6 +54,15 @@ def collate_fn(batch, tokenizer):
         queries = [normalize_query(item['query']) for item in batch]
         query_tensors = tokenizer(queries, truncation=True, padding=True, max_length=256, return_tensors='pt')
         return query_tensors
+
+def get_lora_config(lora_rank, lora_alpha, lora_dropout):
+    return LoraConfig(
+            target_modules=["query", "value"],
+            inference_mode=False, 
+            r=lora_rank, 
+            lora_alpha=lora_alpha,
+            lora_dropout=lora_dropout,
+            bias="none")
 
 """
 def report_recall_to_tensorboard(): 

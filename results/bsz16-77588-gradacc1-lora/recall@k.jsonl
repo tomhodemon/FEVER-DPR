@@ -1,0 +1,65 @@
+[
+  {
+    "recall@1": 0.0,
+    "runtime:": "17.60s",
+    "N (num_query)": 4109,
+    "indexer.ntotal": 8218,
+    "device": "mps",
+    "query_encoder_name": "tomhodemon/fever-query_encoder-lora-bsz16-77588-gradacc1",
+    "passage_encoder_name": "tomhodemon/fever_passage_encoder-lora-bsz16-77588-gradacc1"
+  },
+  {
+    "recall@2": 0.0,
+    "runtime:": "16.64s",
+    "N (num_query)": 4109,
+    "indexer.ntotal": 8218,
+    "device": "mps",
+    "query_encoder_name": "tomhodemon/fever-query_encoder-lora-bsz16-77588-gradacc1",
+    "passage_encoder_name": "tomhodemon/fever_passage_encoder-lora-bsz16-77588-gradacc1"
+  },
+  {
+    "recall@3": 0.0002433682161109759,
+    "runtime:": "17.37s",
+    "N (num_query)": 4109,
+    "indexer.ntotal": 8218,
+    "device": "mps",
+    "query_encoder_name": "tomhodemon/fever-query_encoder-lora-bsz16-77588-gradacc1",
+    "passage_encoder_name": "tomhodemon/fever_passage_encoder-lora-bsz16-77588-gradacc1"
+  },
+  {
+    "recall@4": 0.0004867364322219518,
+    "runtime:": "17.56s",
+    "N (num_query)": 4109,
+    "indexer.ntotal": 8218,
+    "device": "mps",
+    "query_encoder_name": "tomhodemon/fever-query_encoder-lora-bsz16-77588-gradacc1",
+    "passage_encoder_name": "tomhodemon/fever_passage_encoder-lora-bsz16-77588-gradacc1"
+  },
+  {
+    "recall@5": 0.0004867364322219518,
+    "runtime:": "17.52s",
+    "N (num_query)": 4109,
+    "indexer.ntotal": 8218,
+    "device": "mps",
+    "query_encoder_name": "tomhodemon/fever-query_encoder-lora-bsz16-77588-gradacc1",
+    "passage_encoder_name": "tomhodemon/fever_passage_encoder-lora-bsz16-77588-gradacc1"
+  },
+  {
+    "recall@6": 0.0004867364322219518,
+    "runtime:": "17.87s",
+    "N (num_query)": 4109,
+    "indexer.ntotal": 8218,
+    "device": "mps",
+    "query_encoder_name": "tomhodemon/fever-query_encoder-lora-bsz16-77588-gradacc1",
+    "passage_encoder_name": "tomhodemon/fever_passage_encoder-lora-bsz16-77588-gradacc1"
+  },
+  {
+    "recall@7": 0.0009734728644439036,
+    "runtime:": "18.54s",
+    "N (num_query)": 4109,
+    "indexer.ntotal": 8218,
+    "device": "mps",
+    "query_encoder_name": "tomhodemon/fever-query_encoder-lora-bsz16-77588-gradacc1",
+    "passage_encoder_name": "tomhodemon/fever_passage_encoder-lora-bsz16-77588-gradacc1"
+  }
+]

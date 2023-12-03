@@ -4,9 +4,10 @@ import time
 from tqdm import tqdm
 
 import torch
-from transformers import AutoModel, AutoTokenizer
+from transformers import BertModel, BertTokenizer
 from datasets import load_dataset
 import faiss
+from peft import PeftModel
 
 import utils
 
@@ -25,14 +26,23 @@ def main(args):
     d = 768
     indexer = faiss.IndexFlatIP(d)
 
-    tokenizer = AutoTokenizer.from_pretrained("bert-base-cased")
+    tokenizer = BertTokenizer.from_pretrained("bert-base-cased")
 
-   
-    queryEncoder = AutoModel.from_pretrained(args.query_encoder, add_pooling_layer=False).to(device)
-    queryEncoder.eval()
+    if args.lora:
+        base_model = BertModel.from_pretrained("bert-base-cased", add_pooling_layer=False)
+        
+        queryEncoder = PeftModel.from_pretrained(base_model, args.query_encoder).to(device)
+        queryEncoder.eval()
 
-    passageEncoder = AutoModel.from_pretrained(args.passage_encoder, add_pooling_layer=False).to(device)
-    passageEncoder.eval()
+        passageEncoder = PeftModel.from_pretrained(base_model, args.passage_encoder).to(device)
+        passageEncoder.eval()
+
+    else:
+        queryEncoder = BertModel.from_pretrained(args.query_encoder, add_pooling_layer=False).to(device)
+        queryEncoder.eval()
+
+        passageEncoder = BertModel.from_pretrained(args.passage_encoder, add_pooling_layer=False).to(device)
+        passageEncoder.eval()
 
     # load dataset
     eval_dataset = load_dataset("tomhodemon/fever_data", split=args.split)
@@ -109,6 +119,9 @@ if __name__ == "__main__":
 
     parser.add_argument("--passage_encoder", type=str, required=True)
     parser.add_argument("--query_encoder", type=str, required=True)
+
+    # LoRA
+    parser.add_argument("--lora", action="store_true")
 
     args = parser.parse_args()
     main(args)
