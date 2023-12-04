@@ -13,7 +13,7 @@ Once processed, the data follow the retriever input data format specified in the
 
 ## Training experiments and evaluation results
 The repository contains TensorBoard logs produced during training experiments as well as evaluation results. Recall@k is used as metric to evaluate and compare models.
-Both can be visualize in details using:
+Both can be visualized in details using:
 ```
 tensorboard --logdir runs
 ```
